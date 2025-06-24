@@ -14,11 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className='font-lenia'>
-      <body className="relative text-white bg-black overflow-y-auto flex items-center justify-center">
+    <html lang="en" className='font-poppins'>
+      <body className="text-white bg-black">
         <Noise />
-        <div className="absolute w-full h-full inset-0 z-10 bg-[url('/svg/small.svg')] bg-no-repeat bg-center bg-contain pointer-events-none select-none" />
-        {children}
+        <div className="fixed w-full h-full inset-0 z-10 bg-[url('/svg/small.svg')] bg-no-repeat bg-center bg-contain pointer-events-none select-none" />
+        <main className="relative z-20 overflow-y-auto h-screen flex items-center justify-center">
+          {children}
+        </main>
       </body>
     </html>
   );
