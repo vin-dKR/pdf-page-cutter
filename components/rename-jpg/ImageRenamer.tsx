@@ -3,6 +3,7 @@ import { useRenameJpgStore } from '@/store-hooks/renameJpgStore';
 import React, { useState, useEffect } from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import Image from 'next/image';
 
 const ImageRenamer: React.FC = () => {
     const images = useRenameJpgStore(state => state.images);
@@ -62,7 +63,7 @@ const ImageRenamer: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:w-5/6 md:w-3xl lg:w-5xl xl:w-7xl">
                 {images.map((image, index) => (
                     <div key={index} className="flex flex-col items-center">
-                        <img src={imagePreviews[index]} alt={image.name} className="w-32 h-32 object-cover rounded-md" />
+                        <Image src={imagePreviews[index]} alt={image.name} className="w-32 h-32 object-cover rounded-md" />
                         <p className="text-sm mt-2 text-center">{image.name}</p>
                         <p className="text-sm font-bold text-center bg-gray-200/20 px-4 rounded ">{baseName ? `${baseName}-${String(index + 1).padStart(3, '0')}.${image.name.split('.').pop() || 'jpg'}`: ''}</p>
                     </div>

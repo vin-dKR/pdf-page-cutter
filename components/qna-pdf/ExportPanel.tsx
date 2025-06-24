@@ -17,7 +17,7 @@ const ExportPanel: React.FC = () => {
             const originalPdf = await PDFDocument.load(pdfData);
             const newPdf = await PDFDocument.create();
             const totalPages = originalPdf.getPageCount();
-            
+
             const pagesToCopyIndices = [];
             for (let i = 0; i < totalPages; i++) {
                 const pageNumber = i + 1;
@@ -44,25 +44,25 @@ const ExportPanel: React.FC = () => {
             alert('An error occurred while exporting the PDF.');
         }
     };
-    
+
     if (!pdfData) {
         return null;
     }
 
     return (
-        <div className="flex flex-col items-center gap-4 p-4 bg-gray-800/20 rounded-lg">
-            <h3 className="text-lg font-semibold">Export Options</h3>
-            <div className='flex gap-4'>
-                <button onClick={() => handleExport(true)} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-500" disabled={selectedPages.size === 0}>
+        <div className="flex flex-col items-center gap-4 p-4 bg-white/20 rounded-lg border border-white/10">
+            <h3 className="text-xl font-bold">Export Options</h3>
+            <div className='w-50 flex flex-col gap-2'>
+                <button onClick={() => handleExport(true)} className="px-4 py-2 bg-blue-600 text-white rounded-sm hover:bg-blue-700 disabled:bg-gray-500 w-full border border-white/20 cursor-pointer" disabled={selectedPages.size === 0}>
                     Export Selected
                 </button>
-                <button onClick={() => handleExport(false)} className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                <button onClick={() => handleExport(false)} className="px-4 py-2 bg-green-600 text-white rounded-sm hover:bg-green-700 w-full border border-white/20 cursor-pointer">
                     Export Non-Selected
                 </button>
+                <button onClick={clearSelections} className="px-4 py-2 bg-red-600 text-white rounded-sm hover:bg-red-700 disabled:bg-gray-500 w-full border border-white/20 cursor-pointer" disabled={selectedPages.size === 0}>
+                    Clear Selections
+                </button>
             </div>
-            <button onClick={clearSelections} className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-500" disabled={selectedPages.size === 0}>
-                Clear Selections
-            </button>
         </div>
     );
 };
