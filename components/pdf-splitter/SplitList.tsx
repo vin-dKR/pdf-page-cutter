@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSplitPointsStore, SplitPoint } from '@/store-hooks/splitPointsStore';
+import { useSplitPointsStore, type SplitPoint } from '@/store-hooks/splitPointsStore';
 
 const SplitList: React.FC = () => {
     const splitPoints = useSplitPointsStore(state => state.splitPoints);
