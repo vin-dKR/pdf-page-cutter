@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
-import { SplitPoint } from './PDFPage';
+import { type SplitPoint } from './PDFPage';
 import { useSplitPointsStore } from '@/store-hooks/splitPointsStore';
 import 'react-pdf/dist/Page/TextLayer.css';
 import 'react-pdf/dist/Page/AnnotationLayer.css';

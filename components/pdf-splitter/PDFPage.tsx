@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react';
-import { useSplitPointsStore, SplitPoint } from '@/store-hooks/splitPointsStore';
+import { useSplitPointsStore, type SplitPoint } from '@/store-hooks/splitPointsStore';
 
 export type { SplitPoint };
 
