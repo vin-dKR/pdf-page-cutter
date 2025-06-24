@@ -7,7 +7,7 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 import { usePDFDataStore } from '@/store-hooks/pdfDataStore';
 
 if (typeof window !== 'undefined') {
-    pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.mjs';
+    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.mjs`;
 }
 
 // This component renders a single, memoized page and will not re-render
@@ -51,39 +51,6 @@ const PDFPreviewer = () => {
 
     console.log(pageRefs.current, "----------------------------")
 
-
-    // Track which page is in view using IntersectionObserver
-    // useEffect(() => {
-    //     const handleScroll = () => {
-    //         if (!containerRef.current || numPages === 0) return;
-    //         const containerTop = containerRef.current.getBoundingClientRect().top;
-    //         let closestPage = 1;
-    //         let minDistance = Infinity;
-    //         for (let i = 0; i < numPages; i++) {
-    //             const ref = pageRefs.current[i];
-    //             if (ref) {
-    //                 const rect = ref.getBoundingClientRect();
-    //                 const distance = Math.abs(rect.top - containerTop);
-    //                 if (distance < minDistance) {
-    //                     minDistance = distance;
-    //                     closestPage = i + 1;
-    //                 }
-    //             }
-    //         }
-    //         setCurrentPage(closestPage);
-    //     };
-    //     const container = containerRef.current;
-    //     if (container) {
-    //         container.addEventListener('scroll', handleScroll);
-    //     }
-    //     // Initial call
-    //     handleScroll();
-    //     return () => {
-    //         if (container) {
-    //             container.removeEventListener('scroll', handleScroll);
-    //         }
-    //     };
-    // }, [numPages]);
 
     if (!pdfData) {
         return <div style={{ color: '#888', textAlign: 'center' }}>No PDF loaded.</div>;

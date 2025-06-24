@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, PageSizes } from 'pdf-lib';
 import { useSplitPointsStore } from '@/store-hooks/splitPointsStore';
 import { usePDFDataStore } from '@/store-hooks/pdfDataStore';
 import { Button } from '@headlessui/react'
@@ -28,6 +28,7 @@ const ExportPanel = () => {
                 // Always process pages in original order
                 const page = origPdf.getPage(pageNum);
                 const { width, height } = page.getSize();
+
                 // Always process splits in top-to-bottom order
                 const splits = (splitPoints[pageNum + 1] || [])
                     .filter(s => s.orientation === 'horizontal')
@@ -37,15 +38,30 @@ const ExportPanel = () => {
                 for (let i = 0; i < boundaries.length - 1; i++) {
                     const yStart = height * (1 - boundaries[i]);
                     const yEnd = height * (1 - boundaries[i + 1]);
-                    if(yStart <= yEnd) continue;
-                    const tempPdf = await PDFDocument.create();
-                    const [copiedPage] = await tempPdf.copyPages(origPdf, [pageNum]);
-                    copiedPage.setMediaBox(0, yEnd, width, yStart - yEnd);
-                    copiedPage.setCropBox(0, yEnd, width, yStart - yEnd);
-                    tempPdf.addPage(copiedPage);
-                    // Merge this segment page into the mergedPdf in the same order as the original
-                    const [segmentPage] = await mergedPdf.copyPages(tempPdf, [0]);
-                    mergedPdf.addPage(segmentPage);
+                    if (yStart <= yEnd) continue;
+                    const cropHeight = yStart - yEnd;
+
+                    // Create a temporary document to prepare the page slice
+                    const tempDoc = await PDFDocument.create();
+                    const [copiedPage] = await tempDoc.copyPages(origPdf, [pageNum]);
+
+                    // Resize the page to the slice dimensions and move content to fit
+                    copiedPage.setMediaBox(0, 0, width, cropHeight);
+                    copiedPage.translateContent(0, -yEnd);
+                    tempDoc.addPage(copiedPage);
+
+                    // Embed the page slice from the temporary document
+                    const [embeddedSlice] = await mergedPdf.embedPdf(await tempDoc.save());
+
+                    // Add a new A4 page and draw the slice at the top
+                    const a4Page = mergedPdf.addPage(PageSizes.A4);
+                    const { height: a4Height } = a4Page.getSize();
+                    a4Page.drawPage(embeddedSlice, {
+                        x: 0,
+                        y: a4Height - embeddedSlice.height,
+                        width: embeddedSlice.width,
+                        height: embeddedSlice.height,
+                    });
                 }
             }
             const mergedBytes = await mergedPdf.save();
