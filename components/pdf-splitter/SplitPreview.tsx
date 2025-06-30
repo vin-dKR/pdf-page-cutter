@@ -7,7 +7,6 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 
 interface SplitPreviewProps {
     pdfData: ArrayBuffer | null;
-    // splitPoints: Record<number, SplitPoint[]>; // Remove this prop
 }
 
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
