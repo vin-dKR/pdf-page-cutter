@@ -92,7 +92,7 @@ const ExportPanel: React.FC = () => {
             <div className='w-50 flex flex-col gap-2'>
 
                 <button onClick={downloadZip} className="px-4 py-2 bg-green-600 text-white rounded-sm hover:bg-green-700 w-full border border-white/20 cursor-pointer">
-                    Export'em
+                    Export
                 </button>
 
                 <button onClick={clearSelections} className="px-4 py-2 bg-red-600 text-white rounded-sm hover:bg-red-700 disabled:bg-gray-500 w-full border border-white/20 cursor-pointer" disabled={selectedPages.size === 0}>
