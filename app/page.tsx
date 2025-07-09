@@ -3,11 +3,7 @@ import Link from "next/link"
 
 export default function Home() {
     return (
-        <div className="relative text-white min-h-screen overflow-hidden items-center">
-            <div className=" mx-auto pt-16">
-                <h1 className="text-3xl font-bold text-center mb-16">Question Tools</h1>
-            </div>
-
+        <div className="relative z-0 pt-40 text-white min-h-screen overflow-hidden items-center">
             {/* cards */}
             <div className="flex flex-col md:flex-row gap-8">
 
@@ -29,7 +25,7 @@ export default function Home() {
                 </Link>
 
                 <Link href="/rename-jpg">
-                    <div className="w-60 h-auto bg-white/10 rounded-lg border border-white/7 border-[2px] p-4 text-xl shadow-md backdrop-blur-3xlR">
+                    <div className="w-60 h-auto bg-white/10 rounded-lg border border-white/7 border-[2px] p-4 text-xl shadow-md backdrop-blur-3xl">
                         <h1 className="mb-2">
                             Image Renamer
                         </h1>
@@ -62,7 +58,7 @@ export default function Home() {
                     </div>
                 </Link>
                 <Link href="/rename-chapter">
-                <div className="w-60 h-auto bg-white/10 rounded-lg border border-white/7 border-[2px] p-4 text-xl shadow-md backdrop-blur-3xl overflow-hidden">
+                    <div className="w-60 h-auto bg-white/10 rounded-lg border border-white/7 border-[2px] p-4 text-xl shadow-md backdrop-blur-3xl overflow-hidden">
                         <h1 className="mb-2">
                             Chapter Splitter
                         </h1>
@@ -76,8 +72,6 @@ export default function Home() {
                             />
                         </div>
                     </div>
-
-
                 </Link>
             </div>
         </div>

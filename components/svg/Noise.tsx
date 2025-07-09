@@ -1,6 +1,6 @@
 const Noise = () => {
     return (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+        <div className="fixed inset-0 flex items-center justify-center pointer-events-none select-none">
             <svg viewBox="0 0 1000 700" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full opacity-60">
                 <g filter="url(#filter0_fn_50_35)">
                     <rect x="-180" width="1500" height="800" fill="white" fillOpacity="0.2" />

@@ -9,14 +9,14 @@ import dynamic from 'next/dynamic';
 const PDFPreviewer = dynamic(() => import('@/components/pdf-splitter/PDFPreviewer'), { ssr: false });
 
 const Page = () => {
-    
+
     return (
-        <div className="min-h-screen w-full md:min-w-3xl lg:min-w-5xl xl:min-wi7xl w-full text-white overflow-x-auto">
-            <div className="max-w-7xl mx-auto py-8">
-                <h1 className="text-3xl font-bold text-center mb-8">PDF Split</h1>
+        <div className="relative z-5 w-full lg:min-w-5xl text-white h-screen overflow-x-auto">
+            <div className="max-w-5xl mx-auto py-8">
+                <h1 className="text-3xl font-bold text-center mb-8">PDF Splitt</h1>
                 <PDFUploader />
             </div>
-            <div className="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto px-4 py-8">
+            <div className="flex flex-col lg:flex-row gap-8 max-w-5xl mx-auto px-4 py-8">
                 <div className="flex-1 border-white/5 rounded-lg flex justify-center">
                     <PDFPreviewer />
                 </div>
