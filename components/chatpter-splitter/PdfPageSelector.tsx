@@ -90,7 +90,7 @@ const PdfPageSelector = () => {
     }
 
     return (
-        <div className="relative border border-white/10 rounded-lg bg-white/10 p-6 shadow-sm overflow-hidden max-w-lg mx-auto">
+        <div className="relative h-full border border-white/10 rounded-lg bg-white/10 p-6 shadow-sm overflow-hidden max-w-lg mx-auto">
             {/* Spiral Blur Background */}
             <div className="absolute inset-0 -z-10 flex items-center justify-center pointer-events-none">
                 <svg width="340" height="340" viewBox="0 0 340 340" fill="none" xmlns="http://www.w3.org/2000/svg" className="blur-2xl opacity-40">

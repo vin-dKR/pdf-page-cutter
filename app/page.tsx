@@ -57,7 +57,7 @@ export default function Home() {
                         </div>
                     </div>
                 </Link>
-                <Link href="/rename-chapter">
+                <Link href="/chapter-splitter">
                     <div className="w-60 h-auto bg-white/10 rounded-lg border border-white/7 border-[2px] p-4 text-xl shadow-md backdrop-blur-3xl overflow-hidden">
                         <h1 className="mb-2">
                             Chapter Splitter

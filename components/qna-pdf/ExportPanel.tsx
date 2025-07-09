@@ -4,7 +4,6 @@ import { useQnADataStore } from '@/store-hooks/qnaPdfStore';
 import { PDFDocument } from 'pdf-lib';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
-import { blob } from 'stream/consumers';
 
 const ExportPanel: React.FC = () => {
     const { pdfData, selectedPages, clearSelections, name, setName } = useQnADataStore();
@@ -68,6 +67,8 @@ const ExportPanel: React.FC = () => {
             const zipBlob = await zip.generateAsync({ type: 'blob' })
             saveAs(zipBlob, `${name}.zip`)
         } catch (e) {
+            console.log("error in export panel", e)
+            alert("err occured")
         }
 
 
@@ -89,14 +90,6 @@ const ExportPanel: React.FC = () => {
             />
 
             <div className='w-50 flex flex-col gap-2'>
-                <button onClick={() => handleExport(true)} className="px-4 py-2 bg-blue-600 text-white rounded-sm hover:bg-blue-700 disabled:bg-gray-500 w-full border border-white/20 cursor-pointer" disabled={selectedPages.size === 0}>
-                    Export Selected
-                </button>
-
-                <button onClick={() => handleExport(false)} className="px-4 py-2 bg-green-600 text-white rounded-sm hover:bg-green-700 w-full border border-white/20 cursor-pointer">
-                    Export Non-Selected
-                </button>
-
 
                 <button onClick={downloadZip} className="px-4 py-2 bg-green-600 text-white rounded-sm hover:bg-green-700 w-full border border-white/20 cursor-pointer">
                     Export'em

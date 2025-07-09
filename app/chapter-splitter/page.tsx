@@ -6,7 +6,7 @@ import PdfViewer from "@/components/chatpter-splitter/PdfViewer"
 const Page = () => {
     return (
         <div className="h-screen mx-auto p-4">
-            <h1 className="text-3xl font-bold text-center my-8">Image Renamer</h1>
+            <h1 className="text-3xl font-bold text-center my-8">Chapter Splitter</h1>
             <PdfUploader />
 
             <div className="max-w-7xl flex flex-row space-between gap-4">
