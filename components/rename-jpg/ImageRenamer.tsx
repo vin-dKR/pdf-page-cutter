@@ -65,7 +65,7 @@ const ImageRenamer: React.FC = () => {
                     <div key={index} className="flex flex-col items-center">
                         <Image src={imagePreviews[index]} alt={image.name} className="w-32 h-32 object-cover rounded-md" />
                         <p className="text-sm mt-2 text-center">{image.name}</p>
-                        <p className="text-sm font-bold text-center bg-gray-200/20 px-4 rounded ">{baseName ? `${baseName}-${String(index + 1).padStart(3, '0')}.${image.name.split('.').pop() || 'jpg'}`: ''}</p>
+                        <p className="text-sm font-bold text-center bg-gray-200/20 px-4 rounded ">{baseName ? `${baseName}-${String(index + 1).padStart(3, '0')}.${image.name.split('.').pop() || 'jpg'}` : ''}</p>
                     </div>
                 ))}
             </div>

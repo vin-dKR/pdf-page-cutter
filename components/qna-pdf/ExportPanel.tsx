@@ -3,9 +3,11 @@ import React from 'react';
 import { useQnADataStore } from '@/store-hooks/qnaPdfStore';
 import { PDFDocument } from 'pdf-lib';
 import { saveAs } from 'file-saver';
+import JSZip from 'jszip';
+import { blob } from 'stream/consumers';
 
 const ExportPanel: React.FC = () => {
-    const { pdfData, selectedPages, clearSelections } = useQnADataStore();
+    const { pdfData, selectedPages, clearSelections, name, setName } = useQnADataStore();
 
     const handleExport = async (exportSelected: boolean) => {
         if (!pdfData || selectedPages.size === 0 && exportSelected) {
@@ -22,6 +24,7 @@ const ExportPanel: React.FC = () => {
             for (let i = 0; i < totalPages; i++) {
                 const pageNumber = i + 1;
                 const isSelected = selectedPages.has(pageNumber);
+
                 if ((exportSelected && isSelected) || (!exportSelected && !isSelected)) {
                     pagesToCopyIndices.push(i);
                 }
@@ -36,14 +39,39 @@ const ExportPanel: React.FC = () => {
             copiedPages.forEach(page => newPdf.addPage(page));
 
             const pdfBytes = await newPdf.save();
-            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-            saveAs(blob, `${exportSelected ? 'selected' : 'non-selected'}-pages.pdf`);
+            return pdfBytes
 
         } catch (error) {
             console.error(`Failed to export ${exportSelected ? 'selected' : 'non-selected'} pages:`, error);
             alert('An error occurred while exporting the PDF.');
         }
     };
+
+    const downloadZip = async () => {
+        if (!pdfData || selectedPages.size === 0) {
+            return
+        }
+
+        try {
+            const zip = new JSZip()
+
+            const selected = await handleExport(true)
+            if (selected) {
+                zip.file(`${name}-questions.pdf`, selected)
+            }
+
+            const unSelected = await handleExport(false)
+            if (unSelected) {
+                zip.file(`${name}-answer.pdf`, unSelected)
+            }
+
+            const zipBlob = await zip.generateAsync({ type: 'blob' })
+            saveAs(zipBlob, `${name}.zip`)
+        } catch (e) {
+        }
+
+
+    }
 
     if (!pdfData) {
         return null;
@@ -52,13 +80,28 @@ const ExportPanel: React.FC = () => {
     return (
         <div className="flex flex-col items-center gap-4 p-4 bg-white/20 rounded-lg border border-white/10">
             <h3 className="text-xl font-bold">Export Options</h3>
+
+            <input
+                type='text'
+                placeholder='file-name'
+                className='border border-white/20 w-full rounded-sm p-2'
+                onChange={(e) => setName(e.target.value)}
+            />
+
             <div className='w-50 flex flex-col gap-2'>
                 <button onClick={() => handleExport(true)} className="px-4 py-2 bg-blue-600 text-white rounded-sm hover:bg-blue-700 disabled:bg-gray-500 w-full border border-white/20 cursor-pointer" disabled={selectedPages.size === 0}>
                     Export Selected
                 </button>
+
                 <button onClick={() => handleExport(false)} className="px-4 py-2 bg-green-600 text-white rounded-sm hover:bg-green-700 w-full border border-white/20 cursor-pointer">
                     Export Non-Selected
                 </button>
+
+
+                <button onClick={downloadZip} className="px-4 py-2 bg-green-600 text-white rounded-sm hover:bg-green-700 w-full border border-white/20 cursor-pointer">
+                    Export'em
+                </button>
+
                 <button onClick={clearSelections} className="px-4 py-2 bg-red-600 text-white rounded-sm hover:bg-red-700 disabled:bg-gray-500 w-full border border-white/20 cursor-pointer" disabled={selectedPages.size === 0}>
                     Clear Selections
                 </button>

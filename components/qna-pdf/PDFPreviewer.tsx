@@ -62,7 +62,7 @@ const PDFPreviewer: React.FC = () => {
                         await page.render(renderContext).promise;
                     }
                 } catch (error) {
-                     console.error(`Failed to render page ${i}:`, error);
+                    console.error(`Failed to render page ${i}:`, error);
                 }
             }
         };
@@ -79,7 +79,7 @@ const PDFPreviewer: React.FC = () => {
             {Array.from({ length: numPages }, (_, i) => (
                 <div
                     key={i}
-                    className={`cursor-pointer border-2 rounded-lg overflow-hidden ${selectedPages.has(i + 1) ? 'border-blue-500' : 'border-transparent'}`}
+                    className={`cursor-pointer border-2 rounded-lg overflow-hidden ${selectedPages.has(i + 1) ? 'border-yellow-400 border-3' : 'border-transparent'}`}
                     onClick={() => togglePageSelection(i + 1)}
                 >
                     <canvas ref={el => { canvasRefs.current[i] = el; }}></canvas>
