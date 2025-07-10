@@ -61,11 +61,12 @@ const ExportPanel = () => {
                     // Add a new A4 page with only top margin
                     const [a4Width, a4Height] = PageSizes.A4;
                     const a4Page = mergedPdf.addPage([a4Width, a4Height]);
-                    const scale = Math.min(a4Width / embeddedSlice.width, (a4Height - TOP_MARGIN) / embeddedSlice.height);
+                    const margin = i > 0 ? TOP_MARGIN : 0;
+                    const scale = Math.min(a4Width / embeddedSlice.width, (a4Height - margin) / embeddedSlice.height);
 
                     a4Page.drawPage(embeddedSlice, {
-                        x: 0, // No left margin
-                        y: a4Height - embeddedSlice.height * scale - TOP_MARGIN, // Apply top margin
+                        x: 0,
+                        y: a4Height - embeddedSlice.height * scale - margin,
                         width: embeddedSlice.width * scale,
                         height: embeddedSlice.height * scale,
                     });

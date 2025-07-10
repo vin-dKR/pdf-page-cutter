@@ -56,12 +56,12 @@ const ExportPanel: React.FC = () => {
 
             const selected = await handleExport(true)
             if (selected) {
-                zip.file(`${name}-questions.pdf`, selected)
+                zip.file(`${name}-answer.pdf`, selected)
             }
 
             const unSelected = await handleExport(false)
             if (unSelected) {
-                zip.file(`${name}-answer.pdf`, unSelected)
+                zip.file(`${name}-question.pdf`, unSelected)
             }
 
             const zipBlob = await zip.generateAsync({ type: 'blob' })
