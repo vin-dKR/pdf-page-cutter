@@ -1,12 +1,26 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQnADataStore } from '@/store-hooks/qnaPdfStore';
 import { PDFDocument } from 'pdf-lib';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 
 const ExportPanel: React.FC = () => {
-    const { pdfData, selectedPages, clearSelections, name, setName } = useQnADataStore();
+    const { pdfData, selectedPages, clearSelections, name, setName, fileName } = useQnADataStore();
+    const [hasUserEdited, setHasUserEdited] = useState(false);
+
+    // Set default filename when PDF is loaded
+    useEffect(() => {
+        if (pdfData && fileName && !hasUserEdited) {
+            // Use the actual filename from the uploaded PDF
+            setName(fileName);
+        }
+    }, [pdfData, fileName, hasUserEdited, setName]);
+
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setHasUserEdited(true);
+        setName(e.target.value);
+    };
 
     const handleExport = async (exportSelected: boolean) => {
         if (!pdfData || selectedPages.size === 0 && exportSelected) {
@@ -84,9 +98,10 @@ const ExportPanel: React.FC = () => {
 
             <input
                 type='text'
-                placeholder='file-name'
-                className='border border-white/20 w-full rounded-sm p-2'
-                onChange={(e) => setName(e.target.value)}
+                placeholder='Enter file name'
+                value={name}
+                className='border border-white/20 w-full rounded-sm p-2 bg-white/10 text-white placeholder-white/50'
+                onChange={handleNameChange}
             />
 
             <div className='w-50 flex flex-col gap-2'>

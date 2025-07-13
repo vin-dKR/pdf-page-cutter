@@ -14,7 +14,9 @@ interface PageGroup {
 
 const inputClass = clsx(
     'mt-1 block w-full rounded-lg border-none bg-white/5 px-3 py-1.5 text-sm/6 text-white',
-    'focus:not-data-focus:outline-none data-focus:outline-2 data-focus:-outline-offset-2 data-focus:outline-white/25'
+    'focus:not-data-focus:outline-none data-focus:outline-2 data-focus:-outline-offset-2 data-focus:outline-white/25',
+    '[&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
+    '[&::-moz-number-spin-button]:appearance-none'
 )
 
 const PdfPageSelector = () => {
@@ -90,7 +92,7 @@ const PdfPageSelector = () => {
     }
 
     return (
-        <div className="relative h-full border border-white/10 rounded-lg bg-white/10 p-6 shadow-sm overflow-hidden max-w-lg mx-auto">
+        <div className="relative h-full border border-white/10 rounded-lg bg-white/10 p-4 sm:p-6 shadow-sm overflow-y-auto w-full">
             {/* Spiral Blur Background */}
             <div className="absolute inset-0 -z-10 flex items-center justify-center pointer-events-none">
                 <svg width="340" height="340" viewBox="0 0 340 340" fill="none" xmlns="http://www.w3.org/2000/svg" className="blur-2xl opacity-40">
@@ -108,36 +110,44 @@ const PdfPageSelector = () => {
             <h3 className="text-lg font-semibold mb-1">Group Pages</h3>
             <div className='w-full border-white/50 border-t mb-3' />
 
-            <div className="flex flex-row items-end gap-2 mb-4">
-                <Field className="w-20 px-2">
-                    <Label className="text-sm/6 font-medium text-white">Start</Label>
-                    <Input name="lower" type="number" value={pageGroup.lower || ""} onChange={handleChange} className={inputClass} />
+            <div className="flex flex-col gap-4 mb-4">
+                {/* Start and End inputs in a row */}
+                <div className="flex flex-row items-end gap-3">
+                    <Field className="w-20 px-2">
+                        <Label className="text-sm/6 font-medium text-white">Start</Label>
+                        <Input name="lower" type="number" value={pageGroup.lower || ""} onChange={handleChange} className={inputClass} />
+                    </Field>
+                    <Field className="w-20 px-2">
+                        <Label className="text-sm/6 font-medium text-white">End</Label>
+                        <Input name="higher" type="number" value={pageGroup.higher || ""} onChange={handleChange} className={inputClass} />
+                    </Field>
+                    <Button
+                        className="h-12 w-24 items-center gap-2 rounded-md bg-gray-700 px-3 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:not-data-focus:outline-none data-focus:outline data-focus:outline-white data-hover:bg-gray-600 data-open:bg-gray-700"
+                        onClick={handleAddOrEdit}
+                    >
+                        {editingIndex !== null ? "Update" : "Add"}
+                    </Button>
+                </div>
+                {/* Name input gets full width with more space */}
+                <Field className="w-full px-2">
+                    <Label className="text-sm/6 font-medium text-white mb-2">Chapter Name</Label>
+                    <Input name="name" value={pageGroup.name} onChange={handleChange} className={inputClass} placeholder="Enter chapter name..." />
                 </Field>
-                <Field className="w-20 px-2">
-                    <Label className="text-sm/6 font-medium text-white">End</Label>
-                    <Input name="higher" type="number" value={pageGroup.higher || ""} onChange={handleChange} className={inputClass} />
-                </Field>
-                <Field className="flex-1 px-2">
-                    <Label className="text-sm/6 font-medium text-white">Name</Label>
-                    <Input name="name" value={pageGroup.name} onChange={handleChange} className={inputClass} />
-                </Field>
-                <Button
-                    className="h-12 items-center gap-2 rounded-md bg-gray-700 px-3 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:not-data-focus:outline-none data-focus:outline data-focus:outline-white data-hover:bg-gray-600 data-open:bg-gray-700"
-                    onClick={handleAddOrEdit}
-                >
-                    {editingIndex !== null ? "Update" : "Add"}
-                </Button>
             </div>
             {warning && <div className="text-red-500 mb-2 text-sm font-medium">{warning}</div>}
             <ul className="divide-y divide-white/10 mb-4">
                 {pageGroups.map((g, i) => (
-                    <li key={i} className="flex gap-2 items-center py-2">
-                        <span className="flex-1 text-white/90">
-                            <span className="font-semibold">{g.name}</span> <span className="text-xs">({g.lower} - {g.higher})</span>
-                        </span>
-                        <Button className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded" onClick={() => handleEdit(i)}>Edit</Button>
-                        <Button className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded" onClick={() => handleDelete(i)}>Delete</Button>
-                        <Button className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded" onClick={() => handleDownloadSingle(g)}>Download</Button>
+                    <li key={i} className="flex flex-col gap-2 py-3">
+                        <div className="flex items-center justify-between">
+                            <span className="text-white/90">
+                                <span className="font-semibold">{g.name}</span> <span className="text-xs">({g.lower} - {g.higher})</span>
+                            </span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            <Button className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs" onClick={() => handleEdit(i)}>Edit</Button>
+                            <Button className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs" onClick={() => handleDelete(i)}>Delete</Button>
+                            <Button className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs" onClick={() => handleDownloadSingle(g)}>Download</Button>
+                        </div>
                     </li>
                 ))}
             </ul>

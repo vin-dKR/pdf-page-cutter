@@ -16,7 +16,7 @@ const MemoizedPage = React.memo(({ pageNumber }: { pageNumber: number }) => {
     const [pageError, setPageError] = useState<string | null>(null);
 
     if (pageError) {
-        return <div style={{ width: 600, height: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f8f8', color: '#666' }}>
+        return <div style={{ width: '100%', maxWidth: '600px', height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f8f8', color: '#666' }}>
             Failed to load page {pageNumber}
         </div>;
     }
@@ -24,12 +24,12 @@ const MemoizedPage = React.memo(({ pageNumber }: { pageNumber: number }) => {
     return (
         <Page
             pageNumber={pageNumber}
-            width={600}
+            width={Math.min(window.innerWidth * 0.8, 600)}
             renderAnnotationLayer={false}
             renderTextLayer={false}
             onLoadError={(error) => setPageError(error.message)}
             loading={
-                <div style={{ width: 600, height: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f8f8' }}>
+                <div style={{ width: '100%', maxWidth: '600px', height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f8f8' }}>
                     Loading page {pageNumber}...
                 </div>
             }
@@ -44,16 +44,18 @@ const PDFPreviewer = () => {
     const pdfData = usePDFDataStore(state => state.pdfData);
     const [numPages, setNumPages] = useState<number>(0);
     const [error, setError] = useState<string | null>(null);
-    // const [currentPage, setCurrentPage] = useState<number>(1);
     const containerRef = useRef<HTMLDivElement>(null);
     const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-
-    console.log(pageRefs.current, "----------------------------")
-
-
     if (!pdfData) {
-        return <div style={{ color: '#888', textAlign: 'center' }}>No PDF loaded.</div>;
+        return (
+            <div className="w-full flex items-center justify-center h-64 sm:h-80 lg:h-96 bg-white/10 rounded-lg border border-white/10">
+                <div className="text-white text-center">
+                    <p className="text-lg font-medium mb-2">No PDF loaded</p>
+                    <p className="text-sm">Upload a PDF to view it here</p>
+                </div>
+            </div>
+        )
     }
 
     // Minimal custom scrollbar CSS
@@ -73,59 +75,30 @@ const PDFPreviewer = () => {
     `;
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: 800, maxHeight: 800, width: '100%' }}>
+        <div className="flex flex-col h-[600px] md:h-[700px] lg:h-[800px] w-full">
             <style>{scrollbarStyle}</style>
             {/* Top Bar */}
-            <div style={{
-                width: '100%',
-                background: '#fafbfc',
-                borderBottom: '1px solid #eee',
-                padding: '10px 24px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                position: 'sticky',
-                top: 0,
-                zIndex: 10,
-            }}>
-                <span style={{ fontWeight: 500, color: '#333' }}>PDF Document</span>
-                {/* <span style={{ color: '#666' }}>Page {currentPage} of {numPages}</span> */}
-
+            <div className="w-full bg-[#fafbfc] border-b border-gray-200 px-4 md:px-6 py-2 md:py-3 flex items-center justify-between sticky top-0">
+                <span className="font-medium text-[#333] text-sm md:text-base">PDF Document</span>
             </div>
             {/* PDF Pages Scrollable */}
             <div
                 ref={containerRef}
-                className="pdf-scrollbar"
-                style={{
-                    flex: 1,
-                    overflowY: 'auto',
-                    overflowX: 'hidden',
-                    width: '100%',
-                    padding: '20px 0',
-                    background: '#f0f0f0',
-                }}
+                className="pdf-scrollbar flex-1 overflow-y-auto overflow-x-hidden w-full p-2 md:p-4 lg:p-6 bg-gray-100"
             >
                 <Document
                     file={pdfData ? pdfData.slice(0) : undefined}
                     onLoadSuccess={({ numPages }: { numPages: number }) => setNumPages(numPages)}
                     onLoadError={() => setError('Failed to load PDF.')}
-                    loading={<div style={{ textAlign: 'center' }}>Loading PDF...</div>}
-                    error={<div style={{ color: 'red', textAlign: 'center' }}>{error || 'Failed to load PDF.'}</div>}
+                    loading={<div className="text-center">Loading PDF...</div>}
+                    error={<div className="text-center text-red-500">{error || 'Failed to load PDF.'}</div>}
                 >
                     {Array.from({ length: numPages }, (_, i) => (
                         <div
                             key={i}
                             data-page={i + 1}
                             ref={el => { pageRefs.current[i] = el; }}
-                            style={{
-                                position: 'relative',
-                                background: 'white',
-                                padding: '16px',
-                                marginBottom: '32px',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                                width: 'fit-content',
-                                margin: '0 auto 32px auto'
-                            }}
+                            className="relative bg-white p-2 md:p-4 lg:p-6 mb-4 md:mb-6 lg:mb-8 shadow-md w-fit mx-auto"
                         >
                             <MemoizedPage pageNumber={i + 1} />
                             <PDFPage pageNumber={i + 1} />

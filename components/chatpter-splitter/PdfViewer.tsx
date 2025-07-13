@@ -28,11 +28,18 @@ const PdfViewer = () => {
     }, [pdfData])
 
     if (!pdfData || !url) {
-        return <div className="text-red-500 text-center">No PDF loaded</div>;
+        return (
+            <div className="flex items-center justify-center h-64 sm:h-80 lg:h-96 bg-white/10 rounded-lg border border-white/10">
+                <div className="text-white text-center">
+                    <p className="text-lg font-medium mb-2">No PDF loaded</p>
+                    <p className="text-sm">Upload a PDF to view it here</p>
+                </div>
+            </div>
+        );
     }
 
     return (
-        <div className="flex flex-col w-[600px] h-[800px] max-h-[800px]">
+        <div className="flex flex-col w-full h-100 lg:h-[800px] max-h-[800px] bg-white rounded-lg shadow-lg overflow-hidden">
 
             {/* Native PDF Viewer */}
             <div className="flex-1 w-full bg-gray-100">

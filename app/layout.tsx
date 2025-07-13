@@ -19,7 +19,7 @@ export default function RootLayout({
                 <Noise />
                 <div className="fixed w-full h-full inset-0 z-0 bg-[url('/svg/small.svg')] bg-no-repeat bg-center bg-contain pointer-events-none select-none" />
                 <Navbar />
-                <main className="relative pt-20 flex flex-col items-center justify-center min-h-screen">
+                <main className="relative pt-20 flex flex-col items-center z-10">
                     {children}
                 </main>
             </body>
