@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 const PDFEditorToolbar = ({ zoom, setZoom }: { zoom: number; setZoom: (z: number) => void }) => {
     const addElement = usePDFEditorStore(state => state.addElement);
-    const numPages = 1; // For now, add to page 1
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleZoomIn = () => setZoom(Math.min(zoom + 0.1, 2));
