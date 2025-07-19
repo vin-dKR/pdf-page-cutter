@@ -76,6 +76,22 @@ export default function Home() {
                     </div>
                 </Link>
                 
+                <Link href="/pdf-editor">
+                    <div className="w-60 h-auto bg-white/10 rounded-lg border border-white/7 border-[2px] p-4 text-xl shadow-md backdrop-blur-3xl">
+                        <h1 className="mb-2">
+                            Pdf Editor
+                        </h1>
+                        <div className="w-full h-full rounded-md bg-white/10 shadow-md overflow-hidden">
+                            <Image
+                                src="/images/img-rename.png"
+                                alt="padf page cutter"
+                                width={800}
+                                height={450}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                    </div>
+                </Link>
             </div>
         </div>
     );

@@ -14,7 +14,7 @@ const Page = () => {
         <div className="min-h-screen mx-auto sm:p-4 w-full md:w-2xl lg:w-5xl">
             <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2 sm:mb-4">PDF Split</h1>
             <div className="mb-4 sm:mb-6">
-                <PDFUploader />
+                    <PDFUploader />
             </div>
 
             <div className="max-w-5xl mx-auto flex flex-col lg:flex-row gap-4 lg:gap-6">

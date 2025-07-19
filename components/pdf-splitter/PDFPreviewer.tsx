@@ -2,12 +2,13 @@
 import React, { useState, useRef } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import PDFPage from './PDFPage';
-import 'react-pdf/dist/Page/TextLayer.css';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/cjs/Page/TextLayer.css';
+import 'react-pdf/dist/cjs/Page/AnnotationLayer.css';
 import { usePDFDataStore } from '@/store-hooks/pdfDataStore';
 
+console.log(pdfjs.version, "-----------")
 if (typeof window !== 'undefined') {
-    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.mjs`;
+    pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 }
 
 // This component renders a single, memoized page and will not re-render
@@ -84,12 +85,12 @@ const PDFPreviewer = () => {
             {/* PDF Pages Scrollable */}
             <div
                 ref={containerRef}
-                className="pdf-scrollbar flex-1 overflow-y-auto overflow-x-hidden w-full p-2 md:p-4 lg:p-6 bg-gray-100"
+                className="pdf-scrollbar flex-1 overflow-y-auto overflow-x-hidden w-full bg-gray-100"
             >
                 <Document
                     file={pdfData ? pdfData.slice(0) : undefined}
                     onLoadSuccess={({ numPages }: { numPages: number }) => setNumPages(numPages)}
-                    onLoadError={() => setError('Failed to load PDF.')}
+                    onLoadError={() => setError('Failed to load PDFf.')}
                     loading={<div className="text-center">Loading PDF...</div>}
                     error={<div className="text-center text-red-500">{error || 'Failed to load PDF.'}</div>}
                 >
