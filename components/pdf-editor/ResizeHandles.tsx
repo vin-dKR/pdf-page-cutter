@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { type PDFElement } from '@/store-hooks/pdfEditorStore';
+import { type PDFElement, type TextElement } from '@/store-hooks/pdfEditorStore';
 
 interface ResizeHandlesProps {
   el: PDFElement;
@@ -36,6 +36,12 @@ const ResizeHandles: React.FC<ResizeHandlesProps> = ({
 
   // Unified event handlers for mouse and touch
   const startResize = (corner: string, clientX: number, clientY: number) => {
+    let originalFontSize: number | undefined = undefined;
+    let originalH: number | undefined = undefined;
+    if (el.type === 'text') {
+      originalFontSize = (el as TextElement).fontSize;
+      originalH = (el as TextElement).h;
+    }
     setResizing({
       corner,
       startX: clientX,
@@ -44,8 +50,8 @@ const ResizeHandles: React.FC<ResizeHandlesProps> = ({
       startH: el.h,
       startX0: el.x,
       startY0: el.y,
-      originalFontSize: (el as any).fontSize || 16,
-      originalH: el.h,
+      originalFontSize,
+      originalH,
     });
   };
 
@@ -88,10 +94,10 @@ const ResizeHandles: React.FC<ResizeHandlesProps> = ({
         newX = resizing.startX0 + dx;
       }
 
-      let updates: Partial<PDFElement> = { w: newW, h: newH, x: newX, y: newY };
+      const updates: Partial<PDFElement> = { w: newW, h: newH, x: newX, y: newY };
       if (el.type === 'text' && resizing.originalH && resizing.originalFontSize && resizing.originalH > 0) {
         const newFontSize = Math.max(8, (newH / resizing.originalH) * resizing.originalFontSize);
-        (updates as any).fontSize = newFontSize;
+        (updates as Partial<TextElement>).fontSize = newFontSize;
       }
       updateElement(el.id, updates);
     };

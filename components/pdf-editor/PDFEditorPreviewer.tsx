@@ -1,15 +1,12 @@
 'use client';
 
 import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
-import { usePDFEditorStore, type PDFElement } from '@/store-hooks/pdfEditorStore';
+import { usePDFEditorStore, type PDFElement, type ShapeElement, type ImageElement } from '@/store-hooks/pdfEditorStore';
 import PDFEditorToolbar from './PDFEditorToolbar';
 import { Document, Page, pdfjs } from 'react-pdf';
-import TextareaAutosize from 'react-textarea-autosize';
 import TextOverlay from './TextOverlay';
+import Image from 'next/image';
 
-console.log(pdfjs.version, "in fasdf")
-
-console.log(pdfjs.version, "-----------")
 if (typeof window !== 'undefined') {
     pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 }
@@ -64,265 +61,6 @@ const StablePDFRenderer = React.memo(({
     );
 }, () => true); // Never re-render this component
 StablePDFRenderer.displayName = 'StablePDFRenderer';
-
-// Memoized overlay component
-const MemoizedOverlay = React.memo(({ 
-    el, 
-    zoom, 
-    selectedElementId, 
-    onMouseDown, 
-    editingElementId, 
-    setEditingElementId, 
-    updateElement 
-}: { 
-    el: PDFElement; 
-    zoom: number; 
-    selectedElementId: string | null; 
-    onMouseDown: (e: React.MouseEvent, el: PDFElement) => void; 
-    editingElementId: string | null;
-    setEditingElementId: (id: string | null) => void;
-    updateElement: (id: string, updates: Partial<PDFElement>) => void;
-}) => {
-    // Only for text overlays
-    const isText = el.type === 'text';
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const textValue = isText ? (el as any).text || '' : '';
-    const [text, setText] = useState(textValue);
-
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-    useEffect(() => {
-        if (editingElementId === el.id && textareaRef.current) {
-            const len = textareaRef.current.value.length;
-            textareaRef.current.setSelectionRange(len, len);
-        }
-    }, [editingElementId, el.id]);
-
-    useEffect(() => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setText(isText ? (el as any).text || '' : '');
-    }, [isText, el]);
-
-    const handleDoubleClick = useCallback(() => {
-        if (isText) setEditingElementId(el.id);
-    }, [isText, el.id, setEditingElementId]);
-
-    const handleBlur = useCallback(() => {
-        if (isText && text !== textValue) {
-            updateElement(el.id, { text });
-        }
-        setEditingElementId(null);
-    }, [isText, el.id, text, textValue, updateElement, setEditingElementId]);
-
-    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            handleBlur();
-        }
-    }, [handleBlur]);
-
-    const handleSize = 12;
-    const handles = [
-        { key: 'nw', style: { left: -handleSize/2, top: -handleSize/2, cursor: 'nwse-resize' } },
-        { key: 'ne', style: { right: -handleSize/2, top: -handleSize/2, cursor: 'nesw-resize' } },
-        { key: 'sw', style: { left: -handleSize/2, bottom: -handleSize/2, cursor: 'nesw-resize' } },
-        { key: 'se', style: { right: -handleSize/2, bottom: -handleSize/2, cursor: 'nwse-resize' } },
-    ];
-    const [resizing, setResizing] = useState<null | { corner: string, startX: number, startY: number, startW: number, startH: number, startX0: number, startY0: number }>(null);
-    const handleResizeMouseDown = (corner: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        setResizing({
-            corner,
-            startX: e.clientX,
-            startY: e.clientY,
-            startW: el.w,
-            startH: el.h,
-            startX0: el.x,
-            startY0: el.y,
-        });
-    };
-    useEffect(() => {
-        if (!resizing) return;
-        const onMove = (e: MouseEvent) => {
-            const dx = (e.clientX - resizing.startX) / zoom;
-            const dy = (e.clientY - resizing.startY) / zoom;
-            let newW = resizing.startW, newH = resizing.startH, newX = resizing.startX0, newY = resizing.startY0;
-            if (resizing.corner === 'se') {
-                newW = Math.max(20, resizing.startW + dx);
-                newH = Math.max(20, resizing.startH + dy);
-            } else if (resizing.corner === 'nw') {
-                newW = Math.max(20, resizing.startW - dx);
-                newH = Math.max(20, resizing.startH - dy);
-                newX = resizing.startX0 + dx;
-                newY = resizing.startY0 + dy;
-            } else if (resizing.corner === 'ne') {
-                newW = Math.max(20, resizing.startW + dx);
-                newH = Math.max(20, resizing.startH - dy);
-                newY = resizing.startY0 + dy;
-            } else if (resizing.corner === 'sw') {
-                newW = Math.max(20, resizing.startW - dx);
-                newH = Math.max(20, resizing.startH + dy);
-                newX = resizing.startX0 + dx;
-            }
-            updateElement(el.id, { w: newW, h: newH, x: newX, y: newY });
-        };
-        const onUp = () => setResizing(null);
-        window.addEventListener('mousemove', onMove);
-        window.addEventListener('mouseup', onUp);
-        return () => {
-            window.removeEventListener('mousemove', onMove);
-            window.removeEventListener('mouseup', onUp);
-        };
-    }, [resizing, zoom, updateElement, el.id]);
-
-    if (isText && editingElementId === el.id) {
-        return (
-            <div
-                className={`absolute ${selectedElementId === el.id ? 'ring-2 ring-blue-900' : ''}`}
-                style={{
-                    left: el.x * zoom,
-                    top: el.y * zoom,
-                    width: el.w * zoom,
-                    height: el.h * zoom,
-                    zIndex: 15,
-                    userSelect: 'text',
-                    pointerEvents: 'auto',
-                }}
-            >
-                <TextareaAutosize
-                    ref={textareaRef}
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    onBlur={handleBlur}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Escape') {
-                            setEditingElementId(null);
-                        } else {
-                            handleKeyDown(e);
-                        }
-                    }}
-                    autoFocus
-                    rows={1}
-                    className="w-full h-full resize-none bg-transparent border-none outline-none p-0 m-0 focus:ring-0 focus:outline-none text-inherit font-inherit leading-inherit"
-                    style={{
-                        fontSize: (el as any).fontSize * zoom,
-                        color: (el as any).color,
-                        fontFamily: (el as any).fontFamily,
-                        fontWeight: (el as any).bold ? 'bold' : 'normal',
-                        fontStyle: (el as any).italic ? 'italic' : 'normal',
-                        width: '100%',
-                        background: 'transparent',
-                        border: 'none',
-                        outline: 'none',
-                        resize: 'none',
-                        padding: 0,
-                        margin: 0,
-                        lineHeight: 'inherit',
-                        textAlign: (el as any).align || 'left',
-                    }}
-                />
-            </div>
-        );
-    }
-
-    return (
-        <div
-            className={`absolute cursor-move select-none pointer-events-auto ${selectedElementId === el.id ? 'ring-2 ring-blue-500' : ''}`}
-            style={{
-                left: el.x * zoom,
-                top: el.y * zoom,
-                width: el.w * zoom,
-                height: el.h * zoom,
-                zIndex: 15,
-                userSelect: 'none',
-            }}
-            onMouseDown={e => onMouseDown(e, el)}
-            onDoubleClick={handleDoubleClick}
-        >
-            {el.type === 'text' && (
-                <span
-                    style={{
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        fontSize: (el as any).fontSize * zoom,
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        color: (el as any).color,
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        fontFamily: (el as any).fontFamily,
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        fontWeight: (el as any).bold ? 'bold' : 'normal',
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        fontStyle: (el as any).italic ? 'italic' : 'normal',
-                        pointerEvents: 'none',
-                    }}
-                >
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    {(el as any).text}
-                </span>
-            )}
-            
-            {/* --- Render resize handles if selected and not editing --- */}
-            {isText && selectedElementId === el.id && !editingElementId && handles.map(h => (
-                <div
-                    key={h.key}
-                    style={{
-                        position: 'absolute',
-                        width: handleSize,
-                        height: handleSize,
-                        background: '#fff',
-                        border: '2px solid #2563eb',
-                        borderRadius: '50%',
-                        ...h.style,
-                        zIndex: 30,
-                    }}
-                    onMouseDown={e => handleResizeMouseDown(h.key, e)}
-                />
-            ))}
-            {/* --- End resize handles --- */}
-            
-            {el.type === 'shape' && (
-                <svg width={el.w * zoom} height={el.h * zoom} style={{ pointerEvents: 'none' }}>
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    {(el as any).shape === 'rect' && (
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        <rect width={el.w * zoom} height={el.h * zoom} fill={(el as any).fill} stroke={(el as any).stroke} strokeWidth={(el as any).strokeWidth} />
-                    )}
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    {(el as any).shape === 'ellipse' && (
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        <ellipse cx={(el.w * zoom) / 2} cy={(el.h * zoom) / 2} rx={(el.w * zoom) / 2} ry={(el.h * zoom) / 2} fill={(el as any).fill} stroke={(el as any).stroke} strokeWidth={(el as any).strokeWidth} />
-                    )}
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    {(el as any).shape === 'line' && (
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        <line x1={0} y1={(el.h * zoom) / 2} x2={el.w * zoom} y2={(el.h * zoom) / 2} stroke={(el as any).stroke} strokeWidth={(el as any).strokeWidth} />
-                    )}
-                </svg>
-            )}
-            {el.type === 'image' && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    src={(el as any).imageDataUrl}
-                    alt="overlay"
-                    style={{ width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }}
-                />
-            )}
-        </div>
-    );
-}, (prevProps, nextProps) => {
-    // Only re-render if element properties actually change
-    return (
-        prevProps.el.id === nextProps.el.id &&
-        prevProps.el.x === nextProps.el.x &&
-        prevProps.el.y === nextProps.el.y &&
-        prevProps.el.w === nextProps.el.w &&
-        prevProps.el.h === nextProps.el.h &&
-        prevProps.zoom === nextProps.zoom &&
-        prevProps.selectedElementId === nextProps.selectedElementId &&
-        prevProps.editingElementId === nextProps.editingElementId &&
-        prevProps.updateElement === nextProps.updateElement
-    );
-});
-MemoizedOverlay.displayName = 'MemoizedOverlay';
 
 const PDFEditorPreviewer = () => {
     const pdfData = usePDFEditorStore(state => state.pdfData);
@@ -407,8 +145,7 @@ const PDFEditorPreviewer = () => {
                                     updateElement={updateElement}
                                     onMouseDown={handleMouseDown}
                                 />
-                            ) : (
-                                // fallback for other overlay types
+                            ) : el.type === 'shape' ? (
                                 <div
                                     key={el.id}
                                     className={`absolute cursor-move select-none pointer-events-auto ${selectedElementId === el.id ? 'ring-2 ring-blue-500' : ''}`}
@@ -422,9 +159,39 @@ const PDFEditorPreviewer = () => {
                                     }}
                                     onMouseDown={e => handleMouseDown(e, el)}
                                 >
-                                    {/* Render shape or image overlays here as before */}
+                                    <svg width={(el as ShapeElement).w * zoom} height={(el as ShapeElement).h * zoom} style={{ pointerEvents: 'none' }}>
+                                        {(el as ShapeElement).shape === 'rect' && (
+                                            <rect width={(el as ShapeElement).w * zoom} height={(el as ShapeElement).h * zoom} fill={(el as ShapeElement).fill} stroke={(el as ShapeElement).stroke} strokeWidth={(el as ShapeElement).strokeWidth} />
+                                        )}
+                                        {(el as ShapeElement).shape === 'ellipse' && (
+                                            <ellipse cx={((el as ShapeElement).w * zoom) / 2} cy={((el as ShapeElement).h * zoom) / 2} rx={((el as ShapeElement).w * zoom) / 2} ry={((el as ShapeElement).h * zoom) / 2} fill={(el as ShapeElement).fill} stroke={(el as ShapeElement).stroke} strokeWidth={(el as ShapeElement).strokeWidth} />
+                                        )}
+                                        {(el as ShapeElement).shape === 'line' && (
+                                            <line x1={0} y1={((el as ShapeElement).h * zoom) / 2} x2={(el as ShapeElement).w * zoom} y2={((el as ShapeElement).h * zoom) / 2} stroke={(el as ShapeElement).stroke} strokeWidth={(el as ShapeElement).strokeWidth} />
+                                        )}
+                                    </svg>
                                 </div>
-                            )
+                            ) : el.type === 'image' ? (
+                                <div
+                                    key={el.id}
+                                    className={`absolute cursor-move select-none pointer-events-auto ${selectedElementId === el.id ? 'ring-2 ring-blue-500' : ''}`}
+                                    style={{
+                                        left: el.x * zoom,
+                                        top: el.y * zoom,
+                                        width: el.w * zoom,
+                                        height: el.h * zoom,
+                                        zIndex: 15,
+                                        userSelect: 'none',
+                                    }}
+                                    onMouseDown={e => handleMouseDown(e, el)}
+                                >
+                                    <Image
+                                        src={(el as ImageElement).imageDataUrl}
+                                        alt="overlay"
+                                        style={{ width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }}
+                                    />
+                                </div>
+                            ) : null
                         ))}
                     </div>
                 </div>
